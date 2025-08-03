@@ -36,21 +36,21 @@ import {
   ConditionalPrivacyFilter,
   mergeConditionalPrivacyFilterProps,
 } from './PrivacyFilter';
-import {
-  type Spreadsheets,
-  type SheetFields,
-  type SheetNames,
-  type Binding,
-} from './spreadsheet';
-import { type FormatType, useFormat } from './spreadsheet/useFormat';
-import { useSheetValue } from './spreadsheet/useSheetValue';
 
+import { type FormatType, useFormat } from '@desktop-client/hooks/useFormat';
 import { useModalState } from '@desktop-client/hooks/useModalState';
 import {
   AvoidRefocusScrollProvider,
   useProperFocus,
 } from '@desktop-client/hooks/useProperFocus';
 import { useSelectedItems } from '@desktop-client/hooks/useSelected';
+import { useSheetValue } from '@desktop-client/hooks/useSheetValue';
+import {
+  type Spreadsheets,
+  type SheetFields,
+  type SheetNames,
+  type Binding,
+} from '@desktop-client/spreadsheet';
 
 export const ROW_HEIGHT = 32;
 
@@ -624,6 +624,7 @@ type SelectCellProps = Omit<ComponentProps<typeof Cell>, 'children'> & {
   partial?: boolean;
   onEdit?: () => void;
   onSelect?: (e) => void;
+  icon?: ReactNode;
   buttonProps?: Partial<CellButtonProps>;
 };
 export function SelectCell({
@@ -632,6 +633,7 @@ export function SelectCell({
   style,
   onSelect,
   onEdit,
+  icon = <SvgCheckmark width={6} height={6} />,
   buttonProps = {},
   ...props
 }: SelectCellProps) {
@@ -673,7 +675,7 @@ export function SelectCell({
           clickBehavior="none"
           {...buttonProps}
         >
-          {selected && <SvgCheckmark width={6} height={6} />}
+          {selected && icon}
         </CellButton>
       )}
     </Cell>

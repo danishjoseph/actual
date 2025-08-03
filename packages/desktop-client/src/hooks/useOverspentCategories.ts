@@ -9,7 +9,7 @@ import { useSyncedPref } from './useSyncedPref';
 import {
   envelopeBudget,
   trackingBudget,
-} from '@desktop-client/queries/queries';
+} from '@desktop-client/spreadsheet/bindings';
 
 type UseOverspentCategoriesProps = {
   month: string;
@@ -116,7 +116,10 @@ export function useOverspentCategories({ month }: UseOverspentCategoriesProps) {
 
   return useMemo(
     () =>
-      categories.filter(category => overspentCategoryIds.includes(category.id)),
+      categories.filter(
+        category =>
+          overspentCategoryIds.includes(category.id) && !category.is_income,
+      ),
     [categories, overspentCategoryIds],
   );
 }

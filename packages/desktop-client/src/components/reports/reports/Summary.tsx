@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, type CSSProperties } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 
 import { Button } from '@actual-app/components/button';
 import { useResponsive } from '@actual-app/components/hooks/useResponsive';
@@ -326,7 +326,9 @@ function SummaryInner({ widget }: SummaryInnerProps) {
             padding: 16,
           }}
         >
-          <span style={{ marginRight: 4 }}>{t('Show as')}</span>
+          <span style={{ marginRight: 4 }}>
+            <Trans>Show as</Trans>
+          </span>
           <FieldSelect
             style={{ marginRight: 16 }}
             fields={[
@@ -362,7 +364,7 @@ function SummaryInner({ widget }: SummaryInnerProps) {
                 }));
               }}
             />{' '}
-            {t('All time divisor')}
+            <Trans>All time divisor</Trans>
           </View>
         )}
       </View>

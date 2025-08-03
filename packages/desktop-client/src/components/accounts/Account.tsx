@@ -7,7 +7,7 @@ import React, {
   useEffect,
 } from 'react';
 import { Trans } from 'react-i18next';
-import { Navigate, useParams, useLocation } from 'react-router-dom';
+import { Navigate, useParams, useLocation } from 'react-router';
 
 import { styles } from '@actual-app/components/styles';
 import { theme } from '@actual-app/components/theme';
@@ -73,12 +73,12 @@ import {
   replaceModal,
 } from '@desktop-client/modals/modalsSlice';
 import { addNotification } from '@desktop-client/notifications/notificationsSlice';
+import * as queries from '@desktop-client/queries';
 import { aqlQuery } from '@desktop-client/queries/aqlQuery';
 import {
   pagedQuery,
   type PagedQuery,
 } from '@desktop-client/queries/pagedQuery';
-import * as queries from '@desktop-client/queries/queries';
 import {
   createPayee,
   initiallyLoadPayees,
@@ -1456,7 +1456,7 @@ class AccountInternal extends PureComponent<
   };
 
   onScheduleAction = async (
-    name: 'skip' | 'post-transaction' | 'complete',
+    name: 'skip' | 'post-transaction' | 'post-transaction-today' | 'complete',
     ids: TransactionEntity['id'][],
   ) => {
     const scheduleIds = ids.map(id => id.split('/')[1]);
@@ -1465,6 +1465,12 @@ class AccountInternal extends PureComponent<
       case 'post-transaction':
         for (const id of scheduleIds) {
           await send('schedule/post-transaction', { id });
+        }
+        this.refetchTransactions();
+        break;
+      case 'post-transaction-today':
+        for (const id of scheduleIds) {
+          await send('schedule/post-transaction', { id, today: true });
         }
         this.refetchTransactions();
         break;

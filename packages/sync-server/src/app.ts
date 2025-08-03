@@ -2,7 +2,6 @@ import fs, { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import bodyParser from 'body-parser';
 import cors from 'cors';
 import express from 'express';
 import rateLimit from 'express-rate-limit';
@@ -38,17 +37,17 @@ if (process.env.NODE_ENV !== 'development') {
   );
 }
 
+app.use(express.json({ limit: `${config.get('upload.fileSizeLimitMB')}mb` }));
+
 app.use(
-  bodyParser.json({ limit: `${config.get('upload.fileSizeLimitMB')}mb` }),
-);
-app.use(
-  bodyParser.raw({
+  express.raw({
     type: 'application/actual-sync',
     limit: `${config.get('upload.fileSizeSyncLimitMB')}mb`,
   }),
 );
+
 app.use(
-  bodyParser.raw({
+  express.raw({
     type: 'application/encrypted-file',
     limit: `${config.get('upload.syncEncryptedFileSizeLimitMB')}mb`,
   }),
@@ -157,6 +156,15 @@ function parseHTTPSConfig(value: string) {
   return fs.readFileSync(value);
 }
 
+function sendServerStartedMessage() {
+  // Signify to any parent process that the server has started. Used in electron desktop app
+  // @ts-ignore-error electron types
+  process.parentPort?.postMessage({ type: 'server-started' });
+  console.log(
+    'Listening on ' + config.get('hostname') + ':' + config.get('port') + '...',
+  );
+}
+
 export async function run() {
   const portVal = config.get('port');
   const port = typeof portVal === 'string' ? parseInt(portVal) : portVal;
@@ -187,16 +195,12 @@ export async function run() {
       key: parseHTTPSConfig(config.get('https.key')),
       cert: parseHTTPSConfig(config.get('https.cert')),
     };
-    https.createServer(httpsOptions, app).listen(port, hostname);
+    https.createServer(httpsOptions, app).listen(port, hostname, () => {
+      sendServerStartedMessage();
+    });
   } else {
-    app.listen(port, hostname);
+    app.listen(port, hostname, () => {
+      sendServerStartedMessage();
+    });
   }
-
-  // Signify to any parent process that the server has started. Used in electron desktop app
-  // @ts-ignore-error electron types
-  process.parentPort?.postMessage({ type: 'server-started' });
-
-  console.log(
-    'Listening on ' + config.get('hostname') + ':' + config.get('port') + '...',
-  );
 }
